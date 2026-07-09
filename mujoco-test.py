@@ -5,7 +5,14 @@ import mujoco.viewer
 import numpy as np
 
 m = mujoco.MjModel.from_xml_path('STLs/scene.xml')
-d = mujoco.MjData(m)
+# m = mujoco.MjModel.from_xml_path('STLs/biped_mjcf/output.xml')     # model
+d = mujoco.MjData(m)   # simulation state
+
+# Print the mass of body index 1
+print(m.body_mass[1])
+
+# Print the 3D diagonal inertia of body index 1
+print(m.body_inertia[1])
 
 d.qpos[0] = 0.5
 
