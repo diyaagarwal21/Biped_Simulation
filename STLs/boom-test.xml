@@ -1,0 +1,64 @@
+<mujoco model="biped_circular_boom_assembly">
+  <!-- Local compiler rules strictly enforced to maintain compatibility with updated versions -->
+  <compiler angle="degree" inertiafromgeom="false" autolimits="true" coordinate="local"/>
+  
+  <option>
+    <flag contact="enable"/>
+  </option>
+
+  <default>
+    <mesh scale="1 1 1"/>
+    <geom type="mesh" rgba="0.753 0.753 0.753 1"/>
+    <joint type="hinge" limited="true"/>
+    <position ctrllimited="true" kp="1" kv="0.1"/>
+  </default>
+
+  <asset>
+    <!-- Boom Assemblies (Optimized 15,000 face binary configurations) -->
+    <mesh name="base_link" file="base_link.STL" />
+    <mesh name="upper_structure_link" file="upper_structure_link.STL" />
+    <mesh name="spinning_boom_link" file="spinning_boom_link.STL" />
+    <mesh name="robot_holding_link" file="robot_holding_link.STL" />
+    
+    <!-- Robot Meshes -->
+    <mesh name="Hip" file="hip_link.stl"/>
+    <mesh name="Left_Thigh" file="L_thigh_link.stl"/>
+    <mesh name="Left_Shank" file="L_shank_link.stl"/>
+    <mesh name="Right_Thigh" file="R_thigh_link.stl"/>
+    <mesh name="Right_Shank" file="R_shank_link.stl"/>
+  </asset>
+
+  <worldbody>
+    <body name="base_link" pos="0 0 0">
+
+        <site
+            name="origin"
+            type="sphere"
+            size="0.02"
+            rgba="0 1 0 1"/>
+
+        <geom
+            type="box"
+            size="0.05 0.05 0.05"
+            rgba="1 0 0 1"/>
+
+    </body>
+
+    
+  </worldbody>
+<!-- 
+  <actuator>
+    <position name="hip_joint_right_act" joint="hip_joint_r" ctrlrange="-5 5"/>
+    <position name="knee_joint_right_act" joint="knee_joint_r" ctrlrange="-5 5"/>
+    <position name="hip_joint_left_act" joint="hip_joint_l" ctrlrange="-5 5"/>
+    <position name="knee_joint_left_act" joint="knee_joint_l" ctrlrange="-5 5"/>
+  </actuator>
+
+  <contact>
+    <exclude body1="Hip" body2="Thigh_r"/>
+    <exclude body1="Hip" body2="Thigh_l"/>
+    <exclude body1="Thigh_r" body2="Shank_r"/>
+    <exclude body1="Thigh_l" body2="Shank_l"/>
+    <exclude body1="Hip" body2="robot_holding_link"/>
+  </contact> -->
+</mujoco>

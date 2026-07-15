@@ -1,0 +1,109 @@
+<mujoco model="biped_circular_boom_assembly">
+  <!-- Local compiler rules strictly enforced to maintain compatibility with updated versions -->
+  <compiler angle="degree" inertiafromgeom="false" autolimits="true" coordinate="local"/>
+  
+  <option>
+    <flag contact="enable"/>
+  </option>
+
+  <default>
+    <mesh scale="1 1 1"/>
+    <geom type="mesh" rgba="0.753 0.753 0.753 1"/>
+    <joint type="hinge" limited="true"/>
+    <position ctrllimited="true" kp="1" kv="0.1"/>
+  </default>
+
+  <asset>
+    <!-- Boom Assemblies (Optimized 15,000 face binary configurations) -->
+    <mesh name="base_link" file="base_link.STL" />
+    <mesh name="upper_structure_link" file="upper_structure_link.STL" />
+    <mesh name="spinning_boom_link" file="spinning_boom_link.STL" />
+    <mesh name="robot_holding_link" file="robot_holding_link.STL" />
+    
+    <!-- Robot Meshes -->
+    <mesh name="Hip" file="hip_link.stl"/>
+    <mesh name="Left_Thigh" file="L_thigh_link.stl"/>
+    <mesh name="Left_Shank" file="L_shank_link.stl"/>
+    <mesh name="Right_Thigh" file="R_thigh_link.stl"/>
+    <mesh name="Right_Shank" file="R_shank_link.stl"/>
+  </asset>
+
+  <worldbody>
+    <!-- Sky and global directional lighting are inherited from the main scene -->
+    <light directional="true" diffuse=".8 .8 .8" pos="0 0 5" dir="0 0 -1"/>
+
+    <!-- 1. ROTATED BOOM BASE (Pivoted 90 degrees to follow track path vectors) -->
+    <body name="base_link" pos="0 0 0" euler="0 0 0">
+      <inertial pos="0.000105 -0.020624 -0.007515" mass="1.68006" fullinertia="0.013148 0.013161 0.024983 -5.1245e-09 3.3145e-11 1.0685e-10" />
+      <geom mesh="base_link" rgba="0.3 0.3 0.3 1"/>
+
+      <!-- 2. UPPER YAW LINK -->
+      <body name="upper_structure_link" pos="0.000016 -0.001 0.332" euler="0 0 -89.077">
+        <inertial pos="-0.000927 -1.77e-07 0.021564" mass="0.384912" fullinertia="0.00038 0.000239 0.000285 -5.523e-10 -1.5142e-07 -3.339e-11" />
+        <joint name="yaw_joint" type="hinge" pos="0 0 0" axis="0 0 1" limited="false"/>
+        <geom mesh="upper_structure_link" pos="0 0 0" rgba="0.2 0.4 0.8 1"/>
+
+        <!-- 3. SPINNING BOOM ROD -->
+        <body name="spinning_boom_link" pos="-0.4402 0.013462 0.10047" euler="8.9 0 90">
+          <inertial pos="-0.015959 0.047764 0.049955" mass="0.765425" fullinertia="0.048776 0.000164 0.048732 -1.5082e-10 -2.955e-08 0.000504" />
+          <joint name="pitch_joint" type="hinge" pos="0 0 0" axis="-1 0 0" range="-45 45"/>
+          <geom mesh="spinning_boom_link" pos="0 0 0" rgba="0.6 0.6 0.6 1"/>
+
+          <!-- 4. ROBOT HOLDING INTERFACE -->
+          <body name="robot_holding_link" pos="-0.03572 0.59007 0.15128" euler="-168.01 -0.178 -178.86">
+            <inertial pos="-0.020906 0.050071 0.103585" mass="0.316722" fullinertia="0.000721 0.000182 0.000841 1.0797e-05 -1.3638e-07 1.3285e-05" />
+            <joint name="robot_pitch_joint" type="hinge" pos="0 0 0" axis="0 -1 0" range="-45 45"/>
+            <geom mesh="robot_holding_link" pos="0 0 0" rgba="0.8 0.2 0.2 1"/>
+
+            <!-- 5. BIPED ROBOT PELVIS -->
+            <body name="Hip" pos="-0.02395 0.20525 0.15953" euler="-178.84 -0.062 -178.85">
+              <inertial pos="-3.4357e-05 -1.3203e-06 -0.027893" mass="0.72872" fullinertia="0.0026253 0.0009619 0.0024818 -2.7249e-08 3.2969e-07 1.1673e-08"/>
+              <geom mesh="Hip" pos="0 0 0" rgba="0.2 0.2 0.2 1"/>
+
+              <!-- Right Leg -->
+              <body name="Thigh_r" pos="0 0.1005 -0.0525">
+                <inertial pos="-0.0094938 -0.038429 -0.10763" mass="0.45787" fullinertia="0.00075918 0.00083179 0.00018819 1.4171e-06 -5.0112e-05 1.6122e-05"/>
+                <joint name="hip_joint_r" axis="0 1 0" range="-90 90"/>
+                <geom mesh="Right_Thigh" pos="0 0 0"/>
+                <body name="Shank_r" pos="-0.016362 -0.002 -0.18729" euler="2 5 0">
+                  <inertial pos="0.0040144 -0.036775 -0.08659" mass="0.22846" fullinertia="0.00034012 0.00036247 6.104e-05 4.8444e-07 1.2796e-05 -1.1366e-05"/>
+                  <joint name="knee_joint_r" axis="0 1 0" range="-90 90"/>
+                  <geom mesh="Right_Shank" pos="0 0 0"/>
+                </body>
+              </body>
+
+              <!-- Left Leg -->
+              <body name="Thigh_l" pos="0 -0.1005 -0.0525">
+                <inertial pos="-0.0084568 0.038429 -0.10772" mass="0.45787" fullinertia="0.00075989 0.00083179 0.00018748 -1.2716e-06 -4.5862e-05 -1.6056e-05"/>
+                <joint name="hip_joint_l" axis="0 1 0" range="-90 90"/>
+                <geom mesh="Left_Thigh" pos="0 0 0"/>
+                <body name="Shank_l" pos="-0.01487 0.002 -0.18741" euler="-2 4.5 0">
+                  <inertial pos="0.00501558 0.03677336 -0.08653844" mass="0.22845922" fullinertia="0.000339795 0.000362468 6.13674e-05 -6.05095e-07 1.59746e-05 1.13537e-05"/>
+                  <joint name="knee_joint_l" axis="0 1 0" range="-90 90"/>
+                  <geom mesh="Left_Shank" pos="0 0 0"/>
+                </body>
+              </body>
+
+            </body> <!-- End Hip -->
+            
+          </body> <!-- End robot_holding_link -->
+        </body> <!-- End spinning_boom_link -->
+      </body> <!-- End upper_structure_link -->
+    </body> <!-- End base_link -->
+  </worldbody>
+
+  <actuator>
+    <position name="hip_joint_right_act" joint="hip_joint_r" ctrlrange="-5 5"/>
+    <position name="knee_joint_right_act" joint="knee_joint_r" ctrlrange="-5 5"/>
+    <position name="hip_joint_left_act" joint="hip_joint_l" ctrlrange="-5 5"/>
+    <position name="knee_joint_left_act" joint="knee_joint_l" ctrlrange="-5 5"/>
+  </actuator>
+
+  <contact>
+    <exclude body1="Hip" body2="Thigh_r"/>
+    <exclude body1="Hip" body2="Thigh_l"/>
+    <exclude body1="Thigh_r" body2="Shank_r"/>
+    <exclude body1="Thigh_l" body2="Shank_l"/>
+    <exclude body1="Hip" body2="robot_holding_link"/>
+  </contact>
+</mujoco>
