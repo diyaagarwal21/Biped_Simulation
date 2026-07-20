@@ -1,6 +1,6 @@
 <mujoco model="biped">
-    <compiler angle="degree" inertiafromgeom="false"/>
-    <option>
+    <compiler angle="degree" inertiafromgeom="true"/>
+    <option gravity="0 0 -9.81">
         <flag contact="enable"/>
     </option>
 
@@ -8,7 +8,7 @@
         <mesh scale="1 1 1"/>
         <geom type="mesh"/>
         <joint type="hinge" limited="true" axis="0 1 0"/>
-        <position ctrllimited="true" kp="1" kv="0.1"/>
+        <position ctrllimited="true" kp="20" kv="1"/>
     </default>
 
     <asset>
@@ -20,7 +20,7 @@
     </asset>
 
     <worldbody>
-        <body name="Hip">
+        <body name="Hip" pos="0 0 0.48">
             <inertial
                 pos="-3.4357e-05 -1.3203e-06 -0.027893"
                 mass="0.72872"
@@ -28,11 +28,23 @@
                 -2.7249e-08 3.2969e-07 1.1673e-08"/>
 
             <geom mesh="Hip"/>
+            <!-- <joint
+                name="base_x"
+                type="slide"
+                axis="1 0 0"
+                limited="false"/>
+
             <joint
                 name="base_z"
                 type="slide"
                 axis="0 0 1"
                 limited="false"/>
+
+            <joint name="base_pitch"
+                type="hinge"
+                axis="0 1 0"
+                range="-180 180"
+                limited="false"/> -->
 
             <!-- Right Leg -->
             <body name="Thigh_r"
@@ -61,6 +73,13 @@
                         limited="true"
                         range="-90 90"/>
                     <geom mesh="Right_Shank"/>
+
+                    <geom
+                        name="right_foot"
+                        type="sphere"
+                        pos="0.01 -0.046 -0.19"
+                        size="0.020"
+                        friction="2 0.05 0.01"/>
 
                     <site
                         name="right_foot_contact"
@@ -98,6 +117,13 @@
                         range="-90 90"/>
                     <geom mesh="Left_Shank"/>
 
+                    <geom
+                        name="left_foot"
+                        type="sphere"
+                        pos="0.01 0.046 -0.19"
+                        size="0.020"
+                        friction="2 0.05 0.01"/>
+
                     <site
                         name="left_foot_contact"
                         pos="0.01 0.046 -0.21"
@@ -112,19 +138,23 @@
         <position
             name="hip_joint_right_act"
             joint="hip_joint_r"
-            ctrlrange="-5 5"/>
+            ctrlrange="-1.57 1.57"
+            forcerange="-100 100"/>
         <position
             name="knee_joint_right_act"
             joint="knee_joint_r"
-            ctrlrange="-5 5"/>
+            ctrlrange="-1.57 1.57"
+            forcerange="-100 100"/>
         <position
             name="hip_joint_left_act"
             joint="hip_joint_l"
-            ctrlrange="-5 5"/>
+            ctrlrange="-1.57 1.57"
+            forcerange="-100 100"/>
         <position
             name="knee_joint_left_act"
             joint="knee_joint_l"
-            ctrlrange="-5 5"/>
+            ctrlrange="-1.57 1.57"
+            forcerange="-100 100"/>
     </actuator>
 
     <contact>

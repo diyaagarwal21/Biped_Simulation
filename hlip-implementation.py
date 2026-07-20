@@ -7,8 +7,16 @@ import numpy as np
 m = mujoco.MjModel.from_xml_path('STLs/scene.xml')
 d = mujoco.MjData(m)   # simulation state
 
-z0 = 0.304  # z COM
-d.qpos[0] = 0.5
+z0 = 0.304
+# d.qpos[0] = 0
+# # d.qpos[2] = 0
+# d.qpos[1] = 0.395
+
+# d.qpos[3] = -0.8
+# d.qpos[4] = 1.2
+
+# d.qpos[5] = -0.8
+# d.qpos[6] = 1.2
 
 # gets right foot id
 rfoot_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_SITE, "right_foot_contact")
@@ -16,6 +24,12 @@ rfoot_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_SITE, "right_foot_contact")
 lfoot_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_SITE, "left_foot_contact")
 # gets Hip ID
 hip_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, "Hip")
+
+mujoco.mj_forward(m, d)
+
+print("COM", d.subtree_com[hip_id])
+print("right foot", d.site_xpos[rfoot_id])
+print("left foot", d.site_xpos[lfoot_id])
 
 # Prints all the joint names
 for i in range(m.njnt):
@@ -38,33 +52,47 @@ def ik(target_swing, target_com_z, target_stance_x, swing_foot, stance_foot):
     mujoco.mj_jacSubtreeCom(m, d, jac_com, hip_id)
 
     # stance foot x position constraint
-    stance_x = d.site_xpos[stance_foot][0]
-    error_stance_x = target_stance_x - stance_x
-    jacp_stance = np.zeros((3, m.nv))
-    jacr_stance = np.zeros((3, m.nv))
-    mujoco.mj_jacSite(m, d, jacp_stance, jacr_stance, stance_foot)
+    # stance_x = d.site_xpos[stance_foot][0]
+    # error_stance_x = target_stance_x - stance_x
+    # jacp_stance = np.zeros((3, m.nv))
+    # jacr_stance = np.zeros((3, m.nv))
+    # mujoco.mj_jacSite(m, d, jacp_stance, jacr_stance, stance_foot)
+
+    # get pitch angle stabilization
+    hip_body = d.xmat[hip_id].reshape(3,3)
+    # pitch angle from rotation matrix
+    pitch = np.arctan2(-hip_body[2,0],np.sqrt(hip_body[0,0]**2 + hip_body[1,0]**2))
+    pitch_des = 0.0
+    pitch_error = pitch_des - pitch
+    # numerical Jacobian for pitch
+    J_pitch = np.zeros(m.nv)
+
+    # MuJoCo rotational Jacobian of the pelvis
+    jacp_body = np.zeros((3,m.nv))
+    jacr_body = np.zeros((3,m.nv))
+    mujoco.mj_jacBody(m,d,jacp_body,jacr_body,hip_id)
+    # pitch corresponds to y-axis rotation
+    J_pitch = jacr_body[1,:]
 
     # stack jacobians and errors
-    J = np.vstack([jacp[0,:], jacp[2,:], jac_com[2,:], jacp_stance[0,:]])
-    error = np.array([error_swing[0], error_swing[2], z_error, error_stance_x])
+    # J = np.vstack([jacp[0,:], jacp[2,:], jac_com[2,:], jacp_stance[0,:]])
+    # error = np.array([error_swing[0], error_swing[2], z_error, error_stance_x])
+    J = np.vstack([jac_com[2,:], jacp[0,:], jacp[2,:], J_pitch])
+    error = np.array([z_error, error_swing[0], error_swing[2], pitch_error])
 
-    J = J[:,1:5]
-
-    # print("foot =", foot_xpos_current)
-    # print("target =", target)
-    # print("error =", error)
+    J = J[:,0:4]
 
     # pseudoinverse
-    # Jpinv = np.linalg.pinv(J_leg)
+    # Jpinv = np.linalg.pinv(J)
 
     # damped inverse
-    # lam = 0.01
-    # Jpinv = J_leg.T @ np.linalg.inv(J_leg @ J_leg.T + lam**2 * np.eye(2))
+    lam = 0.005
+    Jpinv = J.T @ np.linalg.inv(J @ J.T + lam**2 * np.eye(4))
 
     # get qdot
     K = 1
-    qdot = np.linalg.pinv(J) @ (K*error)
-    print("qdot =",qdot)
+    qdot = Jpinv @ (K*error)
+    # print("qdot =",qdot)
     return qdot
 
 # Generates a swing foot trajectory and returns the target position.
@@ -75,7 +103,7 @@ def foot_trajectory(start_pos, landing_x, phase):
     target[0] = start_pos[0] + phase * (landing_x - start_pos[0])
 
     # z trajectory
-    swing_height = 0.08      # 8 cm
+    swing_height = 0.11    # in m
     target[2] = start_pos[2] + swing_height * np.sin(np.pi * phase)
 
     return target
@@ -117,10 +145,9 @@ def get_com_state(prev_p, step_duration):
 
 def get_hlip_orbit():
     g = 9.81
-    z0 = 0.304
 
     v_d = 0.05  # desired walking speed
-    T_SSP = 1.0
+    T_SSP = 0.2
     T_DSP = 0.0
 
     T = T_SSP + T_DSP
@@ -128,7 +155,7 @@ def get_hlip_orbit():
 
     sigma1 = lamb / np.tanh(T_SSP*lamb/2)  # orbital slope
 
-    # p* and v* are the desired periodic orbit
+    # p* and v* are the desired periodic orbit (hlip state)
     p_star = (v_d*T)/(2 + T_DSP*sigma1)
     v_star = sigma1*p_star
 
@@ -137,7 +164,7 @@ def get_hlip_orbit():
 
 # Returns u --> the step size (target)
 def hlip_controller(p,v):
-    Kp = -0.1
+    Kp = -1
     Kv = 0.1
     p_star, v_star, u_star = get_hlip_orbit()
     x = np.array([p,v])
@@ -157,12 +184,12 @@ def main():
         swing_foot = rfoot_id
 
         # gets initial right and left hip and knee position
-        q_cmd = d.qpos[1:5].copy()
+        q_cmd = d.qpos[0:4].copy()
 
         dt = m.opt.timestep
         prev_p = None  # for COM state
 
-        step_duration = 1.0     # seconds
+        step_duration = 0.2     # seconds
         start_pos = d.site_xpos[swing_foot].copy()
         stance_target = d.site_xpos[stance_foot][0].copy()
 
@@ -219,11 +246,16 @@ def main():
             # integrate to get position for the necessary joints
             # set position actuators for the necessary joint
             q_cmd += qdot * dt
-            d.ctrl[0] = q_cmd[0]
-            d.ctrl[1] = q_cmd[1]
-            d.ctrl[2] = q_cmd[2]
-            d.ctrl[3] = q_cmd[3]
+            # d.ctrl[0] = q_cmd[0]
+            # d.ctrl[1] = q_cmd[1]
+            # d.ctrl[2] = q_cmd[2]
+            # d.ctrl[3] = q_cmd[3]
 
+            # d.ctrl[0] = 0.3   # right hip
+            # d.ctrl[1] = -0.5  # right knee
+
+            # d.ctrl[2] = -0.3  # left hip
+            # d.ctrl[3] = -0.5  # left knee
 
             mujoco.mj_step(m, d)
             viewer.sync()
