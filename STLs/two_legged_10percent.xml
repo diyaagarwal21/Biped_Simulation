@@ -8,7 +8,7 @@
         <mesh scale="1 1 1"/>
         <geom type="mesh"/>
         <joint type="hinge" limited="true" axis="0 1 0"/>
-        <position ctrllimited="true" kp="60" kv="0.1"/>
+        <position ctrllimited="true" kp="5" kv=".1"/>
     </default>
 
     <asset>
@@ -20,61 +20,68 @@
     </asset>
 
     <worldbody>
+
         <body name="Hip" pos="0 0 0.48">
+
             <inertial
-                pos="-3.4357e-05 -1.3203e-06 -0.027893"
-                mass="0.72872"
-                fullinertia="0.0026253 0.0009619 0.0024818 
-                -2.7249e-08 3.2969e-07 1.1673e-08"/>
+                pos="-1.60691724269563e-05 -6.33855242214884e-07 -0.0406634601111731"
+                mass="0.336117564787414"
+                fullinertia="
+                0.000644423150602096
+                0.000327930337738703
+                0.000614328200518472
+                -3.04036480400026e-08
+                1.03938929874692e-07
+                3.0385371842639e-09"/>
 
             <geom mesh="Hip"/>
-            <joint name="base_x" type="slide" axis="1 0 0" limited="false"/>
-            <joint name="base_z" type="slide" axis="0 0 1" limited="false"/>
-            <joint name="base_pitch" type="hinge" axis="0 1 0" limited="true" range="-0.001 0.001"/>
-            <!-- <joint
-                name="base_x"
-                type="slide"
-                axis="1 0 0"
-                limited="false"/>
 
-            <joint
-                name="base_z"
-                type="slide"
-                axis="0 0 1"
-                limited="false"/>
-
-            <joint name="base_pitch"
-                type="hinge"
-                axis="0 1 0"
-                range="-180 180"
-                limited="false"/> -->
 
             <!-- Right Leg -->
             <body name="Thigh_r"
                   pos="0 0.1005 -0.0525">
+
                 <inertial
-                    pos="-0.0094938 -0.038429 -0.10763"
-                    mass="0.45787"
-                    fullinertia="0.00075918 0.00083179 0.00018819 1.4171e-06 -5.0112e-05 1.6122e-05"/>
+                    pos="0.0114704654527604 -0.0416178968965235 -0.15762099832964"
+                    mass="0.156796807920243"
+                    fullinertia="
+                    0.00013274295296333
+                    0.000170950704986148
+                    0.0000602568636689205
+                    -1.65574143994168e-07
+                    5.61704062623825e-06
+                    2.05650211729705e-06"/>
+
                 <joint
                     name="hip_joint_r"
                     axis="0 1 0"
                     limited="true"
                     range="-90 90"/>
+
                 <geom mesh="Right_Thigh"/>
 
+
                 <body name="Shank_r"
-                      pos="-0.016362 -0.002 -0.18729"
-                      euler="0 0 0">
+                      pos="0.0139473302764348 0 -0.18748192440382"
+                      euler="0.0349065850398915 -0.0742561492913385 0">
+
                     <inertial
-                        pos="0.0040144 -0.036775 -0.08659"
-                        mass="0.22846"
-                        fullinertia="0.00034012 0.00036247 6.104e-05 4.8444e-07 1.2796e-05 -1.1366e-05"/>
+                        pos="-0.0127271469352938 -0.0412652261016818 -0.12183867103463"
+                        mass="0.0719755737198867"
+                        fullinertia="
+                        0.0000798357918458485
+                        0.0000852235542372508
+                        0.0000176521526041706
+                        -2.39890290995031e-07
+                        -6.49781963397748e-06
+                        -2.48824775950632e-06"/>
+
                     <joint
                         name="knee_joint_r"
                         axis="0 1 0"
                         limited="true"
                         range="-90 90"/>
+
                     <geom mesh="Right_Shank"/>
 
                     <geom
@@ -89,35 +96,54 @@
                         pos="0.01 -0.046 -0.21"
                         size="0.005"
                         rgba="1 0 0 1"/>
+
                 </body>
             </body>
-
-            <!-- Left Leg -->
+                        <!-- Left Leg -->
             <body name="Thigh_l"
                   pos="0 -0.1005 -0.0525">
+
                 <inertial
-                    pos="-0.0084568 0.038429 -0.10772"
-                    mass="0.45787"
-                    fullinertia="0.00075989 0.00083179 0.00018748 -1.2716e-06 -4.5862e-05 -1.6134e-05"/>
+                    pos="-0.0122463392374637 0.0416178968589629 -0.157562615645424"
+                    mass="0.15679680778559"
+                    fullinertia="
+                    0.0001326858879882
+                    0.000170950704810644
+                    0.0000603139286447342
+                    -1.75696942445418e-07
+                    -5.97363355554031e-06
+                    -2.05566185703869e-06"/>
+
                 <joint
                     name="hip_joint_l"
                     axis="0 1 0"
                     limited="true"
                     range="-90 90"/>
+
                 <geom mesh="Left_Thigh"/>
 
+
                 <body name="Shank_l"
-                      pos="-0.01487 0.002 -0.18741"
-                      euler="0 0 0">
+                      pos="-0.0148701877637554 0 -0.187410985579476"
+                      euler="-0.0349065850398715 0.0791794519127444 0">
+
                     <inertial
-                        pos="0.00501558 0.03677336 -0.08653844"
-                        mass="0.22845922"
-                        fullinertia="0.000339795 0.000362468 6.13674e-05 -6.05095e-07 1.59746e-05 1.13537e-05"/>
+                        pos="0.0070663337712554 0.0412810659379727 -0.122292278688603"
+                        mass="0.0719755735631036"
+                        fullinertia="
+                        0.0000803004154908319
+                        0.0000852229562393487
+                        0.0000171881267571233
+                        -1.33660167526878e-07
+                        3.62090418994796e-06
+                        2.50491276562734e-06"/>
+
                     <joint
                         name="knee_joint_l"
                         axis="0 1 0"
                         limited="true"
                         range="-90 90"/>
+
                     <geom mesh="Left_Shank"/>
 
                     <geom
@@ -132,39 +158,52 @@
                         pos="0.01 0.046 -0.21"
                         size="0.005"
                         rgba="1 0 0 1"/>
+
                 </body>
             </body>
+
         </body>
+
     </worldbody>
 
+
     <actuator>
+
         <position
             name="hip_joint_right_act"
             joint="hip_joint_r"
             ctrlrange="-1.57 1.57"
             forcerange="-100 100"/>
+
         <position
             name="knee_joint_right_act"
             joint="knee_joint_r"
             ctrlrange="-1.57 1.57"
             forcerange="-100 100"/>
+
         <position
             name="hip_joint_left_act"
             joint="hip_joint_l"
             ctrlrange="-1.57 1.57"
             forcerange="-100 100"/>
+
         <position
             name="knee_joint_left_act"
             joint="knee_joint_l"
             ctrlrange="-1.57 1.57"
             forcerange="-100 100"/>
+
     </actuator>
 
+
     <contact>
+
         <exclude body1="Hip" body2="Thigh_r"/>
         <exclude body1="Hip" body2="Thigh_l"/>
+
         <exclude body1="Thigh_r" body2="Shank_r"/>
         <exclude body1="Thigh_l" body2="Shank_l"/>
+
     </contact>
 
 </mujoco>
