@@ -1,6 +1,7 @@
 <mujoco model="biped">
   <!-- <include file="biped_mjcf/output.xml"/> -->
-  <include file="two_legged.xml"/>
+  <!-- <include file="two_legged.xml"/> -->
+  <include file="two_legged_newaxes.xml"/>
 
   <statistic center="0 0 0.55" extent="1.1"/>
 

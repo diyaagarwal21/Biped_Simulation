@@ -3,11 +3,12 @@ import time
 import mujoco
 import mujoco.viewer
 import numpy as np
+import matplotlib.pyplot as plt
 
 m = mujoco.MjModel.from_xml_path('STLs/scene.xml')
 d = mujoco.MjData(m)   # simulation state
 
-z0 = 0.25
+z0 = 0.28
 # d.qpos[0] = 0
 # # d.qpos[2] = 0
 # d.qpos[1] = 0.395
@@ -47,10 +48,10 @@ def ik(target_swing, target_com_z, target_stance_x, swing_foot, stance_foot):
 
     # z COM constraint
     com = d.subtree_com[0]
-    z_error = target_com_z - com[2]
+    z_error = com[2] - target_com_z 
     jac_com = np.zeros((3, m.nv))
     
-    mujoco.mj_jacSubtreeCom(m, d, jac_com, hip_id)
+    mujoco.mj_jacSubtreeCom(m, d, jac_com, 0)
 
     # stance foot x position constraint
     stance_x = d.site_xpos[stance_foot][0]
@@ -81,14 +82,11 @@ def ik(target_swing, target_com_z, target_stance_x, swing_foot, stance_foot):
     # J = np.vstack([jac_com[2,:], jacp[0,:], jacp[2,:], J_pitch])
     # error = np.array([z_error, error_swing[0], error_swing[2], 0.1*pitch_error])
     # J = np.vstack([jac_com[2,:], jacp[0,:], jacp[2,:], J_pitch])
-    # error = np.array([z_error, error_swing[0], error_swing[2], 0.1*pitch_error])
-    # J = np.vstack([jacp[0,:], jacp[2,:]])
-    # error = np.array([error_swing[0], error_swing[2]])
-
+    # error = np.array([z_error, error_swing[0], error_swing[2], 5*pitch_error])
+    # J = np.vstack([jacp[0,:], jacp[2,:], jacp_stance[0,:]])
+    # error = np.array([error_swing[0], error_swing[2], error_stance_x])
+    
     J = J[:,3:7]
-
-    # pseudoinverse
-    # Jpinv = np.linalg.pinv(J)
 
     # damped inverse
     lam = 0.005
@@ -98,7 +96,22 @@ def ik(target_swing, target_com_z, target_stance_x, swing_foot, stance_foot):
     K = 1
     qdot = Jpinv @ (K*error)
     # print("qdot =",qdot)
+    # print("COM z:", com[2], "error:", z_error)
+    # print("qdot:", qdot)
+    # print("rank:", np.linalg.matrix_rank(J))
+    # print("full COM jac:", jac_com[2,:])
+    # print("joint COM jac:", jac_com[2,3:7])
+    print("Jx:", jacp[0,3:7])
+    print("Jz:", jacp[2,3:7])
+    print("COM z :", jac_com[2,3:7])
+    
     return qdot
+
+# for center of mass z position (Can change to bezier later, 7/30)
+def com_trajectory(z_nominal, phase):
+    squat = 0.02  # 2 cm
+
+    return z_nominal - squat * 0.5 * (1 - np.cos(2*np.pi*phase))
 
 # Generates a swing foot trajectory and returns the target position.
 def foot_trajectory(start_pos, landing_x, phase):
@@ -108,7 +121,7 @@ def foot_trajectory(start_pos, landing_x, phase):
     target[0] = start_pos[0] + phase * (landing_x - start_pos[0])
 
     # z trajectory
-    swing_height = 0.10   # in m
+    swing_height = 0.05 # in m
     target[2] = start_pos[2] + swing_height * np.sin(np.pi * phase)
 
     return target
@@ -171,7 +184,7 @@ def get_hlip_orbit():
 # Returns u --> the step size (target)
 def hlip_controller(p,v):
     Kp = -1
-    Kv = 0.2
+    Kv = 0.5
     p_star, v_star, u_star = get_hlip_orbit()
     x = np.array([p,v])
     x_star = np.array([p_star,v_star])
@@ -182,10 +195,75 @@ def hlip_controller(p,v):
     return u
     # return 0.03
 
+class Logger:
+    def __init__(self):
+        self.time = []
+
+        # Swing foot
+        self.desired_x = []
+        self.actual_x = []
+
+        self.desired_z = []
+        self.actual_z = []
+
+        # COM
+        self.desired_com_z = []
+        self.actual_com_z = []
+
+    def log(self, t,
+            desired_swing, actual_swing,
+            desired_com_z, actual_com_z):
+
+        self.time.append(t)
+
+        # Swing foot
+        self.desired_x.append(desired_swing[0])
+        self.actual_x.append(actual_swing[0])
+
+        self.desired_z.append(desired_swing[2])
+        self.actual_z.append(actual_swing[2])
+
+        # COM
+        self.desired_com_z.append(desired_com_z)
+        self.actual_com_z.append(actual_com_z)
+
+    def plot(self):
+        # Swing X
+        plt.figure(figsize=(10,4))
+        plt.plot(self.time, self.desired_x, label="Desired")
+        plt.plot(self.time, self.actual_x, "--", label="Actual")
+        plt.xlabel("Time (s)")
+        plt.ylabel("Swing Foot X")
+        plt.grid()
+        plt.legend()
+
+        # Swing Z
+        plt.figure(figsize=(10,4))
+        plt.plot(self.time, self.desired_z, label="Desired")
+        plt.plot(self.time, self.actual_z, "--", label="Actual")
+        plt.xlabel("Time (s)")
+        plt.ylabel("Swing Foot Z")
+        plt.grid()
+        plt.legend()
+
+        # COM Z
+        plt.figure(figsize=(10,4))
+        plt.plot(self.time, self.desired_com_z, label="Desired")
+        plt.plot(self.time, self.actual_com_z, "--", label="Actual")
+        plt.xlabel("Time (s)")
+        plt.ylabel("COM Z")
+        plt.grid()
+        plt.legend()
+
+        plt.show()
+
 def main():
     # Mujoco Simulation
     with mujoco.viewer.launch_passive(m, d) as viewer:
         step_start = time.time()
+
+        logger = Logger()
+        com_start_z = d.subtree_com[0][2]
 
         stance_foot = lfoot_id
         swing_foot = rfoot_id
@@ -196,7 +274,7 @@ def main():
         dt = m.opt.timestep
         prev_p = None  # for COM state
 
-        step_duration = 0.5    # seconds
+        step_duration = 1    # seconds
         start_pos = d.site_xpos[swing_foot].copy()
         stance_target = d.site_xpos[stance_foot][0].copy()
 
@@ -220,6 +298,7 @@ def main():
             if phase >= 1.0:
                 step_start = time.time()  # reset time
                 phase = 0.0
+                com_start_z = d.subtree_com[0][2]
 
                 stance_foot, swing_foot = swing_foot, stance_foot
 
@@ -247,8 +326,16 @@ def main():
             # Calculate the swing foot trajectory
             target_swing = foot_trajectory(start_pos,landing_x,phase)
 
+
+            # plot the error
+            actual_swing = d.site_xpos[swing_foot].copy()
+
+
             # get qdot from ik(target) function
-            qdot = ik(target_swing, z0, stance_target, swing_foot, stance_foot)  # (2, )
+            target_com_z = z0 # com_trajectory(z0, phase)
+            qdot = ik(target_swing, target_com_z, stance_target, swing_foot, stance_foot)  # (2, )
+
+            logger.log(elapsed, target_swing,d.site_xpos[swing_foot].copy(),target_com_z,d.subtree_com[0][2])
 
             # integrate to get position for the necessary joints
             # set position actuators for the necessary joint
@@ -276,6 +363,8 @@ def main():
             time_until_next_step = m.opt.timestep - (time.time() - step_start)
             if time_until_next_step > 0:
                 time.sleep(time_until_next_step)
+
+        logger.plot()
 
 
 if __name__ == "__main__":

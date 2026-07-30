@@ -87,7 +87,7 @@ def ik(target_swing, target_com_z, swing_foot):
     print("||error|| =", np.linalg.norm(error))
     print("Jacobian: ", J)
 
-    J = J[:,3:7]
+    J = J[:,0:4]
 
     # pseudoinverse
     # Jpinv = np.linalg.pinv(J)
@@ -164,7 +164,7 @@ def main():
 
         mujoco.mj_forward(m, d)
         dt = m.opt.timestep
-        q_cmd = d.qpos[3:7].copy()
+        q_cmd = d.qpos[0:4].copy()
 
         # start_pos = d.site_xpos[rfoot_id].copy()
 
