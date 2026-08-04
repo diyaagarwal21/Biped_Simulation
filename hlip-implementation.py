@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 m = mujoco.MjModel.from_xml_path('STLs/scene.xml')
 d = mujoco.MjData(m)   # simulation state
 
-z0 = 0.28
+z0 = 0.25
 # d.qpos[0] = 0
 # # d.qpos[2] = 0
 # d.qpos[1] = 0.395
@@ -90,11 +90,26 @@ def ik(target_swing, target_com_z, target_stance_x, swing_foot, stance_foot):
 
     # damped inverse
     lam = 0.005
-    Jpinv = J.T @ np.linalg.inv(J @ J.T + lam**2 * np.eye(J.shape[0]))
+    # Jpinv = J.T @ np.linalg.inv(J @ J.T + lam**2 * np.eye(J.shape[0]))
 
     # get qdot
-    K = 1
-    qdot = Jpinv @ (K*error)
+    # K = 3
+    # qdot = Jpinv @ (K*error)
+
+    # try a weighted jacobian 7/30
+    W = np.diag([
+        1.0,   # COM z importance
+        20.0,   # swing x importance
+        10.0,  # swing z importance
+        5.0    # stance x importance
+    ])
+
+    J_weighted = W @ J
+    error_weighted = W @ error
+
+    Jpinv = J_weighted.T @ np.linalg.inv(J_weighted @ J_weighted.T + lam**2*np.eye(J.shape[0]) )
+    qdot = Jpinv @ error_weighted
+
     # print("qdot =",qdot)
     # print("COM z:", com[2], "error:", z_error)
     # print("qdot:", qdot)
@@ -121,7 +136,7 @@ def foot_trajectory(start_pos, landing_x, phase):
     target[0] = start_pos[0] + phase * (landing_x - start_pos[0])
 
     # z trajectory
-    swing_height = 0.05 # in m
+    swing_height = 0.03 # in m
     target[2] = start_pos[2] + swing_height * np.sin(np.pi * phase)
 
     return target

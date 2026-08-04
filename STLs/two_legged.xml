@@ -28,9 +28,9 @@
                 -2.7249e-08 3.2969e-07 1.1673e-08"/>
 
             <geom mesh="Hip"/>
-            <!-- <joint name="base_x" type="slide" axis="1 0 0" limited="false"/>
+            <joint name="base_x" type="slide" axis="1 0 0" limited="false"/>
             <joint name="base_z" type="slide" axis="0 0 1" limited="false"/>
-            <joint name="base_pitch" type="hinge" axis="0 1 0" limited="true" range="-0.001 0.001"/> -->
+            <joint name="base_pitch" type="hinge" axis="0 1 0" limited="true" range="-0.001 0.001"/>
             <!-- <joint
                 name="base_x"
                 type="slide"
