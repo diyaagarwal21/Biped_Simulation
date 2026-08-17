@@ -116,9 +116,9 @@ def ik(target_swing, target_com_z, target_stance_x, swing_foot, stance_foot):
     # print("rank:", np.linalg.matrix_rank(J))
     # print("full COM jac:", jac_com[2,:])
     # print("joint COM jac:", jac_com[2,3:7])
-    print("Jx:", jacp[0,3:7])
-    print("Jz:", jacp[2,3:7])
-    print("COM z :", jac_com[2,3:7])
+    # print("Jx:", jacp[0,3:7])
+    # print("Jz:", jacp[2,3:7])
+    # print("COM z :", jac_com[2,3:7])
     
     return qdot
 
@@ -198,15 +198,15 @@ def get_hlip_orbit():
 
 # Returns u --> the step size (target)
 def hlip_controller(p,v):
-    Kp = -1
-    Kv = 0.5
+    Kp = 5
+    Kv = 0.1
     p_star, v_star, u_star = get_hlip_orbit()
     x = np.array([p,v])
     x_star = np.array([p_star,v_star])
     K = np.array([Kp,Kv])
 
     # u is the stepping stabilization for the orbit
-    u = u_star + K @ (x-x_star)
+    u = u_star - K @ (x-x_star)
     return u
     # return 0.03
 

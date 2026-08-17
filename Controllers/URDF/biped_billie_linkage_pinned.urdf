@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<robot name="biped_billie_linkage_pinned">
+
+  <!-- 
+  generalized coordinate order = [LeftAnkle, LeftKnee, LeftHip, RightHip, RightKnee]
+  -->
+
+  <material name="dark_gray"><color rgba="0.25 0.25 0.25 1"/></material>
+  <material name="light_gray"><color rgba="0.65 0.65 0.65 1"/></material>
+  <material name="red"><color rgba="0.80 0.10 0.10 1"/></material>
+  <material name="green"><color rgba="0.10 0.65 0.10 1"/></material>
+  <material name="blue"><color rgba="0.10 0.20 0.80 1"/></material>
+
+  <!-- Left Leg -->
+  <link name="LeftFoot"/>
+  <link name="LeftAnklePostFrame"/>
+  <joint name="LeftAnkle" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="LeftFoot"/>
+    <child link="LeftAnklePostFrame"/>
+    <axis xyz="0 -1 0"/>
+    <limit lower="-2.0" upper="2.0" effort="0" velocity="31"/>
+  </joint>
+
+  <link name="LeftShin">
+    <inertial>
+      <origin xyz="1.2553e-07 0.017802 -0.12331" rpy="0 0 0"/>
+      <mass value="0.071976"/>
+      <inertia
+        ixx="8.0507e-05"
+        ixy="-1.3374e-11"
+        ixz="-1.3431e-10"
+        iyy="8.5223e-05"
+        iyz="2.5123e-06"
+        izz="1.6981e-05"/>
+    </inertial>
+  </link>
+
+  <joint name="LeftAnkleToShin" type="fixed">
+    <origin xyz="-0.01 -0.046 0.21" rpy="0 0 0"/>
+    <parent link="LeftAnklePostFrame"/>
+    <child link="LeftShin"/>
+  </joint>
+
+  <link name="LeftKneePostFrame"/>
+
+  <joint name="LeftKnee" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="LeftShin"/>
+    <child link="LeftKneePostFrame"/>
+    <axis xyz="0 0.99939 0.034899"/>
+    <limit lower="0" upper="2.49582083035" effort="12" velocity="31"/>
+  </joint>
+
+  <link name="LeftThigh">
+    <inertial>
+      <origin xyz="0.00025471 0.012591 -0.15857" rpy="0 0 0"/>
+      <mass value="0.1568"/>
+      <inertia
+        ixx="0.00013318"
+        ixy="-1.9256e-08"
+        ixz="-1.9188e-07"
+        iyy="0.00017067"
+        iyz="-5.934e-06"
+        izz="6.0104e-05"/>
+    </inertial>
+  </link>
+
+  <joint name="LeftKneeToThigh" type="fixed">
+    <origin xyz="0 0.00633216 0.18789286" rpy="0.0012184667106948 0 0"/>
+    <parent link="LeftKneePostFrame"/>
+    <child link="LeftThigh"/>
+  </joint>
+  <link name="LeftHipPostFrame"/>
+
+  <joint name="LeftHip" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="LeftThigh"/>
+    <child link="LeftHipPostFrame"/>
+    <axis xyz="0 0.99939 -0.034899"/>
+    <limit lower="-1.57079632679" upper="1.57079632679" effort="12" velocity="31"/>
+  </joint>
+
+  <link name="Torso">
+    <inertial>
+      <origin xyz="-1.6069e-05 -6.3386e-07 -0.040663" rpy="0 0 0"/>
+      <mass value="0.33612"/>
+      <inertia
+        ixx="0.00064442"
+        ixy="-3.0404e-08"
+        ixz="1.0394e-07"
+        iyy="0.00032793"
+        iyz="3.0385e-09"
+        izz="0.00061433"/>
+    </inertial>
+  </link>
+
+  <joint name="LeftHipToTorso" type="fixed">
+    <origin xyz="0 0.077 0.0525" rpy="0 0 0"/>
+    <parent link="LeftHipPostFrame"/>
+    <child link="Torso"/>
+  </joint>
+
+
+
+  <!-- Right Leg -->
+  <link name="RightThigh">
+    <inertial>
+      <origin xyz="-0.00025471 -0.018118 -0.15804" rpy="0 0 0"/>
+      <mass value="0.1568"/>
+      <inertia
+        ixx="0.00013318"
+        ixy="-1.2548e-08"
+        ixz="1.9243e-07"
+        iyy="0.00017095"
+        iyz="2.0631e-06"
+        izz="5.9825e-05"/>
+    </inertial>
+  </link>
+
+  <joint name="RightHip" type="revolute">
+    <origin xyz="0 0.077 -0.0525" rpy="0 0 0"/>
+    <parent link="Torso"/>
+    <child link="RightThigh"/>
+    <axis xyz="0 -1 0"/>
+    <limit lower="-1.57079632679" upper="1.57079632679" effort="12" velocity="31"/>
+  </joint>
+  <link name="RightShin">
+    <inertial>
+      <origin xyz="-1.2553e-07 -0.017802 -0.12331" rpy="0 0 0"/>
+      <mass value="0.071976"/>
+      <inertia
+        ixx="8.0507e-05"
+        ixy="-1.3374e-11"
+        ixz="1.3431e-10"
+        iyy="8.5223e-05"
+        iyz="-2.5123e-06"
+        izz="1.6981e-05"/>
+    </inertial>
+  </link>
+
+  <joint name="RightKnee" type="revolute">
+    <origin xyz="0 0 -0.188" rpy="0.000609242081993661 0 0"/>
+    <parent link="RightThigh"/>
+    <child link="RightShin"/>
+    <axis xyz="0 -0.99939 0.034899"/>
+    <limit lower="0" upper="2.49582083035" effort="12" velocity="31"/>
+  </joint>
+
+</robot>
