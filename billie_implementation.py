@@ -12,7 +12,7 @@ from Controllers.linear_quadratic_regulizer_controller import TVLQR
 
 
 # 1. Initilialize model in mujoco
-controller = "TVLQR" 
+controller = "PD" 
 # choose "PD", "FBL", "TVLQR"
 m = mujoco.MjModel.from_xml_path('STLs/scene.xml')
 d = mujoco.MjData(m)
@@ -35,7 +35,7 @@ step_duration = 0.2
 n_steps = 2
 
 if n_steps == 1:
-    x_ref = np.load(r"C:\Users\julie\OneDrive - Georgia Institute of Technology\courses\Capstone\Code\Biped_Simulation\Data\Xsol_full_0.2_periodic_0.2_wheight.npy")
+    x_ref = np.load(r"C:\Users\julie\OneDrive - Georgia Institute of Technology\courses\Capstone\Code\Biped_Simulation\Data\Xsol_0.2_periodic_0.2_wheight.npy")
     x_ref[:, 1] *= -1
     x_ref[:, 2] *= -1 
     x_ref[:, 6] *= -1 
@@ -89,15 +89,15 @@ torso_id = biped.getFrameId("Torso")
 # PD controller
 if controller == "PD":
     Kp = np.array([
-            [100, 0,   0,  0],
-            [0, 100, 0,  0],
-            [0, 0,  100,  0],
-            [0, 0,   0, 100]])
+            [2, 0,   0,  0],
+            [0, 2, 0,  0],
+            [0, 0,  2,  0],
+            [0, 0,   0, 2]])
     Kd = np.array([
-            [0.01, 0,  0,  0],
-            [0,  0.01, 0,  0],
-            [0,  0, 0.01,  0],
-            [0,  0,  0, 0.01]])
+            [0.1, 0,  0,  0],
+            [0,  0.1, 0,  0],
+            [0,  0, 0.1,  0],
+            [0,  0,  0, 0.1]])
     C = PDController(Kp, Kd)
 
 elif controller == "FBL":
@@ -161,7 +161,7 @@ def _base_state(q_pin, z0_mj):
     pin.updateFramePlacements(biped, pin_d)
 
     foot_x = 0.0
-    foot_z = 0.0
+    foot_z = 0.00
     T = pin_d.oMf[torso_id]
     R = T.rotation
 
@@ -213,14 +213,14 @@ class Logger:
         u_ref = np.asarray(self.u_ref)
         u_real = np.asarray(self.u_real)
 
-        state_names = ["Right hip", "Right knee"] #["Left ankle", "Left knee", "Left hip", "Right hip", "Right knee"]
+        state_names = ["Left ankle", "Left knee", "Left hip", "Right hip", "Right knee"]
 
         actuator_names = ["Left knee", "Left hip", "Right hip", "Right knee"]
 
         for i, name in enumerate(state_names):
             plt.figure(figsize=(10, 4))
-            plt.plot(time, -x_ref[:, i+3], label="Reference")
-            plt.plot(time, -x_real[:, i+3], "--", label="Measured")
+            plt.plot(time, x_ref[:, i], label="Reference")
+            plt.plot(time, x_real[:, i], "--", label="Measured")
             plt.xlabel("Time [s]")
             plt.ylabel("Position [rad]")
             plt.title(name)
@@ -252,14 +252,15 @@ d.qvel[m.jnt_dofadr[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, "knee_joint_
 d.qvel[m.jnt_dofadr[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, "hip_joint_l")]] = v0_pin[2]
 d.qvel[m.jnt_dofadr[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, "knee_joint_l")]] = v0_pin[1]
 
-z0_mj = m.body_pos[hip_id, 2]
+z0_mj = m.body_pos[hip_id, 2] #- 0.13
 b_x0, b_z0, b_p0 = _base_state(q0_pin, z0_mj)
 d.qpos[m.jnt_qposadr[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, "base_x")]] = b_x0
 d.qpos[m.jnt_qposadr[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, "base_z")]] = b_z0
 d.qpos[m.jnt_qposadr[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, "base_pitch")]] = b_p0
 eps = 1e-5
 b_x1, b_z1, b_p1 = _base_state(q0_pin + eps * v0_pin, z0_mj)
-base_v = np.array([(b_x1 - b_x0) / eps, (b_z1 - b_z0) / eps, (b_p1 - b_p0) / eps])
+# base_v = np.array([(b_x1 - b_x0) / eps, (b_z1 - b_z0) / eps, (b_p1 - b_p0) / eps])
+base_v = np.array([(b_x1 - b_x0) / eps, 0.0 / eps, (b_p1 - b_p0) / eps])
 for name, value in zip(["base_x", "base_z", "base_pitch"], base_v):
     jid = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, name)
     d.qvel[m.jnt_dofadr[jid]] = value
@@ -293,7 +294,7 @@ def main():
         while viewer.is_running():
 
             if d.time >= n_steps * step_duration:
-                logger.plot()
+                # logger.plot()
                 mujoco.mj_resetData(m, d)
                 d.qpos[:] = initial_qpos
                 d.qvel[:] = initial_qvel
@@ -314,7 +315,7 @@ def main():
             elif controller == "TVLQR" or controller == "FBL":
                 u_pin = C.compute(p_ref, v_ref, p_measured, v_measured, uff, a_ref, t_phase, step_idx)
 
-            u_pin = np.clip(u_pin, -2.0, 2.0)
+            u_pin = np.clip(u_pin, -0.7, 0.7)
             u_mj = _pin_to_mujoco_mapping(u_pin) # tf control back to mujoco convention, expected order [RH, RK, LH, LK]
 
             d.ctrl[:] = u_mj

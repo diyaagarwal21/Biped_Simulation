@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="rabbit_PF">
+
+  <!-- ============================================================
+       Materials
+       ============================================================ -->
+  <material name="torso_green">
+    <color rgba="0.10 0.65 0.20 1.0"/>
+  </material>
+  <material name="left_red">
+    <color rgba="0.80 0.15 0.15 1.0"/>
+  </material>
+  <material name="right_blue">
+    <color rgba="0.15 0.25 0.85 1.0"/>
+  </material>
+  <material name="contact_dark">
+    <color rgba="0.10 0.10 0.10 1.0"/>
+  </material>
+
+
+  <!-- ============================================================
+       TORSO / HIP
+       Inertial properties copied from the MuJoCo XML.
+       Visual/collision geometry intentionally kept as a box.
+       ============================================================ -->
+  <link name="Torso">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.33612"/>
+      <inertia
+        ixx="0.00064442"
+        ixy="-0.000000030404"
+        ixz="0.00000010394"
+        iyy="0.00032793"
+        iyz="0.0000000030385"
+        izz="0.00061433"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0 0 0.015" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.080 0.240 0.140"/>
+      </geometry>
+      <material name="torso_green"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0.015" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.080 0.240 0.140"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+  <!-- ============================================================
+       LEFT THIGH
+       ============================================================ -->
+  <link name="LeftThigh">
+    <inertial>
+      <origin xyz="-0.00025471 -0.018118 -0.15804" rpy="0 0 0"/>
+      <mass value="0.1568"/>
+      <inertia
+        ixx="0.00013318"
+        ixy="-0.000000019256"
+        ixz="-0.00000019188"
+        iyy="0.00017067"
+        iyz="-0.000005934"
+        izz="0.000060104"/>
+    </inertial>
+
+    <!-- Box representation retained intentionally. -->
+    <visual>
+      <origin xyz="0 0 -0.094" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.045 0.055 0.188"/>
+      </geometry>
+      <material name="left_red"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 -0.094" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.045 0.055 0.188"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+  <!-- ============================================================
+       LEFT SHIN
+       ============================================================ -->
+  <link name="LeftShin">
+    <inertial>
+      <origin xyz="0.00000012553 0.017802 -0.12331" rpy="0 0 0"/>
+      <mass value="0.071976"/>
+      <inertia
+        ixx="0.000080507"
+        ixy="-0.000000000013374"
+        ixz="-0.00000000013431"
+        iyy="0.000085223"
+        iyz="0.0000025123"
+        izz="0.000016981"/>
+    </inertial>
+
+    <!-- Box representation retained intentionally. -->
+    <visual>
+      <origin xyz="0 0 -0.100" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.040 0.050 0.200"/>
+      </geometry>
+      <material name="left_red"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 -0.100" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.040 0.050 0.200"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="LeftContact">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.025"/>
+      </geometry>
+      <material name="contact_dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0.020" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.020"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+  <!-- ============================================================
+       RIGHT THIGH
+       ============================================================ -->
+  <link name="RightThigh">
+    <inertial>
+      <origin xyz="-0.00025471 -0.018118 -0.15804" rpy="0 0 0"/>
+      <mass value="0.1568"/>
+      <inertia
+        ixx="0.00013318"
+        ixy="-0.000000012548"
+        ixz="0.00000019243"
+        iyy="0.00017095"
+        iyz="0.0000020631"
+        izz="0.000059825"/>
+    </inertial>
+
+    <!-- Box representation retained intentionally. -->
+    <visual>
+      <origin xyz="0 0 -0.094" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.045 0.055 0.188"/>
+      </geometry>
+      <material name="right_blue"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 -0.094" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.045 0.055 0.188"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+  <!-- ============================================================
+       RIGHT SHIN
+       ============================================================ -->
+  <link name="RightShin">
+    <inertial>
+      <origin xyz="-0.00000012553 -0.017802 -0.12331" rpy="0 0 0"/>
+      <mass value="0.071976"/>
+      <inertia
+        ixx="0.000080507"
+        ixy="-0.000000000013374"
+        ixz="0.00000000013431"
+        iyy="0.000085223"
+        iyz="-0.0000025123"
+        izz="0.000016981"/>
+    </inertial>
+
+    <!-- Box representation retained intentionally. -->
+    <visual>
+      <origin xyz="0 0 -0.100" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.040 0.050 0.200"/>
+      </geometry>
+      <material name="right_blue"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 -0.100" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.040 0.050 0.200"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="RightContact">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.025"/>
+      </geometry>
+      <material name="contact_dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0.020" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.020"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+  <!-- ============================================================
+       JOINTS
+
+       IMPORTANT:
+       The source MuJoCo file has:
+         <compiler angle="degree"/>
+
+       Therefore:
+         0.034907 degrees  =  0.000609242082 rad
+        -0.069813 degrees  = -0.001218466711 rad
+
+       Those literal XML semantics are used below.
+       ============================================================ -->
+
+  <joint name="LeftHip" type="revolute">
+    <origin xyz="0 -0.077 -0.0525" rpy="0 0 0"/>
+    <axis xyz="0 -0.999390827019096 0.034899496702501"/>
+    <parent link="Torso"/>
+    <child link="LeftThigh"/>
+    <limit effort="12" lower="-1.570796326795" upper="1.570796326795" velocity="8"/>
+  </joint>
+
+  <joint name="LeftKnee" type="revolute">
+    <origin xyz="0 0 -0.188" rpy="0 0 0"/>
+    <axis xyz="0 -0.999390827019096 -0.034899496702501"/>
+    <parent link="LeftThigh"/>
+    <child link="LeftShin"/>
+    <limit effort="12" lower="0" upper="2.495820830352" velocity="8"/>
+  </joint>
+
+  <!--
+       Keep this fixed contact link: downstream code can query
+       LeftContact as the left foot contact-point frame.
+  -->
+  <joint name="LeftContactFixed" type="fixed">
+    <parent link="LeftShin"/>
+    <child link="LeftContact"/>
+    <origin xyz="0 0 -0.20" rpy="0 0 0"/>
+  </joint>
+
+
+  <joint name="RightHip" type="revolute">
+    <origin xyz="0 0.077 -0.0525" rpy="0 0 0"/>
+    <axis xyz="0 -1 0"/>
+    <parent link="Torso"/>
+    <child link="RightThigh"/>
+    <limit effort="12" lower="-1.570796326795" upper="1.570796326795" velocity="8"/>
+  </joint>
+
+  <joint name="RightKnee" type="revolute">
+    <origin xyz="0 0 -0.188" rpy="0 0 0"/>
+    <axis xyz="0 -0.999390827019096 0.034899496702501"/>
+    <parent link="RightThigh"/>
+    <child link="RightShin"/>
+    <limit effort="12" lower="0" upper="2.495820830352" velocity="8"/>
+  </joint>
+
+  <!--
+       Keep this fixed contact link: downstream code can query
+       RightContact as the right foot contact-point frame.
+  -->
+  <joint name="RightContactFixed" type="fixed">
+    <parent link="RightShin"/>
+    <child link="RightContact"/>
+    <origin xyz="0 0 -0.20" rpy="0 0 0"/>
+  </joint>
+
+
+  <!-- ============================================================
+       TRANSMISSIONS
+
+       Retained from the original URDF. The MuJoCo XML does not provide
+       equivalent mechanicalReduction or motorInertia parameters.
+       ============================================================ -->
+
+  <transmission name="LeftHipTransmission" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="LeftHip"/>
+    <actuator>
+      <mechanicalReduction>7.75</mechanicalReduction>
+      <motorInertia>0.000332</motorInertia>
+    </actuator>
+  </transmission>
+
+  <transmission name="LeftKneeTransmission" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="LeftKnee"/>
+    <actuator>
+      <mechanicalReduction>7.75</mechanicalReduction>
+      <motorInertia>0.000332</motorInertia>
+    </actuator>
+  </transmission>
+
+  <transmission name="RightHipTransmission" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="RightHip"/>
+    <actuator>
+      <mechanicalReduction>7.75</mechanicalReduction>
+      <motorInertia>0.000332</motorInertia>
+    </actuator>
+  </transmission>
+
+  <transmission name="RightKneeTransmission" type="pr2_mechanism_model/SimpleTransmission">
+    <joint name="RightKnee"/>
+    <actuator>
+      <mechanicalReduction>7.75</mechanicalReduction>
+      <motorInertia>0.000332</motorInertia>
+    </actuator>
+  </transmission>
+
+</robot>

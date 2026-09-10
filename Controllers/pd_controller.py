@@ -18,4 +18,4 @@ class PDController:
         ufb = self.Kp @ position_error + self.Kd @ velocity_error
         u = uff + ufb
 
-        return u
+        return ufb
